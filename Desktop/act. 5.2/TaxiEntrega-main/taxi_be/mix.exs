@@ -1,3 +1,6 @@
+#Carolina Ivette Ramírez Monfil A00839173
+#Myrka Santiago López
+#Joey Dominick Alcocer Hanson
 defmodule TaxiBe.MixProject do
   use Mix.Project
 
