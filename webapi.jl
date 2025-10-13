@@ -31,7 +31,6 @@ route("/simulations/:id") do
     json(Dict("cars" => cars))
 end
 
-
 Genie.config.run_as_server = true
 Genie.config.cors_headers["Access-Control-Allow-Origin"] = "*"
 Genie.config.cors_headers["Access-Control-Allow-Headers"] = "Content-Type"

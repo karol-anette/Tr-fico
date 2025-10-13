@@ -52,13 +52,12 @@ export default function App() {
           Stop
         </button>
       </div>
-      <svg width="800" height="500" xmlns="http://www.w3.org/2000/svg" style={{backgroundColor:"white"}}>
+      <svg width="800" height="500" xmlns="http://www.w3.org/2000/svg" style={{backgroundColor:"darkgreen"}}>
 
-      <rect x={0} y={200} width={800} height={80} style={{fill: "darkgray"}}></rect>
-      {/* <image x={0} y={240} href="./racing-car.png"/> */}
+      <rect x={0} y={200} width={800} height={80} style={{fill: "gray"}}></rect>
       {
         cars.map(car =>
-          <image id={car.id} x={car.pos[0]*32} y={240} width={32} href="./racing-car.png"/>
+          <image id={car.id} x={car.pos[0]*32} y={225} width={32} key={car.id} href="./racing-car.png"/>
         )
       }
       </svg>
