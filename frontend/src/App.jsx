@@ -57,7 +57,7 @@ export default function App() {
       <rect x={0} y={200} width={800} height={80} style={{fill: "gray"}}></rect>
       {
         cars.map(car =>
-          <image id={car.id} x={car.pos[0]*32} y={225} width={32} key={car.id} href="./racing-car.png"/>
+          <image id={car.id} x={car.pos[0]*32} y={225} width={32} key={car.id} href={car.id==1?"dark-racing-car.png":"./racing-car.png"}/>
         )
       }
       </svg>
