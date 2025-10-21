@@ -15,7 +15,7 @@ route("/simulations", method = POST) do
     for car in allagents(model)
         push!(cars, car)
     end
-    
+
     json(Dict("Location" => "/simulations/$id", "cars" => cars))
 end
 
@@ -27,7 +27,7 @@ route("/simulations/:id") do
     for car in allagents(model)
         push!(cars, car)
     end
-    
+
     json(Dict("cars" => cars))
 end
 

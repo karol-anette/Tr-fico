@@ -40,12 +40,10 @@ function  agent_step!(agent, model)
     new_velocity = isnothing(car_ahead(agent, model)) ? accelerate(agent) : decelerate(agent)
     if new_velocity >= 1.0
         new_velocity = 1.0
-        agent.accelerating = false
     elseif new_velocity <= 0.0
         new_velocity = 0.0
-        agent.accelerating = true
     end
-    
+
     agent.vel = (new_velocity, 0.0)
     move_agent!(agent, model, 0.4)
 end
