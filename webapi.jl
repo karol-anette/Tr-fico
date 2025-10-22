@@ -11,24 +11,47 @@ route("/simulations", method = POST) do
     id = string(uuid1())
     instances[id] = model
 
-    cars = []
-    for car in allagents(model)
-        push!(cars, car)
+    traffic_lights = []
+    
+    for agent in allagents(model)
+        push!(traffic_lights, Dict(
+            "id" => agent.id,
+            "pos" => agent.pos,
+            "state" => string(agent.state),
+            "type" => "traffic_light"
+        ))
     end
 
-    json(Dict("Location" => "/simulations/$id", "cars" => cars))
+    println("🚦 Enviando $(length(traffic_lights)) semáforos al frontend")
+
+    json(Dict(
+        "Location" => "/simulations/$id", 
+        "id" => id, 
+        "cars" => [], 
+        "traffic_lights" => traffic_lights
+    ))
 end
 
-route("/simulations/:id") do
-    println(payload(:id))
-    model = instances[payload(:id)]
-    run!(model, 1)
-    cars = []
-    for car in allagents(model)
-        push!(cars, car)
+route("/simulations/:id", method = GET) do
+    id = Genie.params(:id)
+    model = instances[id]
+    Agents.step!(model, 1)
+    
+    traffic_lights = []
+    
+    for agent in allagents(model)
+        push!(traffic_lights, Dict(
+            "id" => agent.id,
+            "pos" => agent.pos,
+            "state" => string(agent.state),
+            "type" => "traffic_light"
+        ))
     end
 
-    json(Dict("cars" => cars))
+    json(Dict(
+        "cars" => [],  
+        "traffic_lights" => traffic_lights
+    ))
 end
 
 Genie.config.run_as_server = true

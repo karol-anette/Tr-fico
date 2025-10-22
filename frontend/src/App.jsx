@@ -1,43 +1,52 @@
 import { useState, useRef } from 'react';
 
 export default function App() {
-  let [location, setLocation] = useState("");
+  let [location, setLocation] = useState("");  
   let [cars, setCars] = useState([]);
-  let [simSpeed, setSimSpeed] = useState(10);
+  let [trafficLights, setTrafficLights] = useState([]);
   const running = useRef(null);
 
   let setup = () => {
-    console.log("Hola");
     fetch("http://localhost:8000/simulations", {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({  })
+      body: JSON.stringify({})
     }).then(resp => resp.json())
     .then(data => {
-      console.log(data);
-      setLocation(data["Location"]);
-      setCars(data["cars"]);
+      setLocation(data["Location"]);  
+      setCars(data["cars"] || []);
+      setTrafficLights(data["traffic_lights"] || []);
     });
   }
 
   const handleStart = () => {
+    if (!location) {
+      alert("Primero haz clic en Setup");
+      return;
+    }
+    
     running.current = setInterval(() => {
-      fetch("http://localhost:8000" + location)
+      fetch("http://localhost:8000" + location)  
       .then(res => res.json())
       .then(data => {
-        setCars(data["cars"]);
+        setCars(data["cars"] || []);
+        setTrafficLights(data["traffic_lights"] || []);
       });
-    }, 1000 / simSpeed);
+    }, 500);
   };
 
   const handleStop = () => {
     clearInterval(running.current);
   }
 
-  const handleSimSpeedSliderChange = (event, newValue) => {
-    setSimSpeed(newValue);
-  };
-
+  const getTrafficLightColor = (state) => {
+    switch(state) {
+      case "GREEN": return "green";
+      case "YELLOW": return "yellow";
+      case "RED": return "red";
+      default: return "gray";
+    }
+  }
 
   return (
     <div>
@@ -52,15 +61,25 @@ export default function App() {
           Stop
         </button>
       </div>
-      <svg width="600" height="600" xmlns="http://www.w3.org/2000/svg" style={{backgroundColor:"darkgreen"}}>
-
-      <rect x={0} y={260} width={600} height={80} style={{fill: "gray"}}></rect>
-      <rect x={260} y={0} width={80} height={600} style={{ fill: "gray" }} />
-      {
-        cars.map(car =>
-          <image id={car.id} x={car.pos[0]*32} y={225} width={32} key={car.id} href={car.id==1?"dark-racing-car.png":"./racing-car.png"}/>
-        )
-      }
+      
+      <svg width="800" height="600" xmlns="http://www.w3.org/2000/svg" style={{backgroundColor:"darkgreen"}}>
+        {/* Calles */}
+        <rect x={0} y={250} width={800} height={100} style={{fill: "gray"}} />
+        <rect x={350} y={0} width={100} height={600} style={{ fill: "gray" }} />
+        
+        {/* Semáforos */}
+        {trafficLights.map(light =>
+          <rect 
+            key={light.id}
+            x={light.pos[0] * 32 - 8} 
+            y={light.pos[1] * 60 - 8} 
+            width="16" 
+            height="16" 
+            fill={getTrafficLightColor(light.state)}
+            stroke="black"
+            strokeWidth="1"
+          />
+        )}
       </svg>
     </div>
   );
