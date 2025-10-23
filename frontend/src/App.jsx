@@ -46,7 +46,7 @@ export default function App() {
   const getTrafficLightColor = (color) => {
     switch(color) {
       case "green":
-      case ":green": return "green";
+      case ":green": return "lime";
       case "yellow":
       case ":yellow": return "yellow";
       case "red":
@@ -65,20 +65,11 @@ export default function App() {
 
       <svg width="600" height="600" xmlns="http://www.w3.org/2000/svg" style={{ backgroundColor: "darkgreen" }}>
         {/* Carretera */}
-        <rect x={0} y={140} width={800} height={40} fill="gray" />
+        <rect x={0} y={285} width={800} height={40} fill="gray" />
 
         {/* Autos */}
         {cars.map((car, i) => (
-          <rect
-            key={i}
-            x={car.pos[0] * 20}   // Escala la posición de Julia al SVG
-            y={car.pos[1] * 20}
-            width="20"
-            height="10"
-            fill="blue"
-            stroke="black"
-            strokeWidth="1"
-          />
+          <image id={car.id} x={car.pos[0]*32} y={225} width={32} key={car.id} href={car.id==1?"yellowcar.png":"./redcar.png"}/>
         ))}
 
         {/* Semáforos */}

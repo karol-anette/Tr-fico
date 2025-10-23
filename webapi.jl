@@ -11,6 +11,13 @@ route("/simulations", method = POST) do
     id = string(uuid1())
     instances[id] = model
 
+    cars = [Dict(
+        "id" => a.id,
+        "pos" => a.pos,
+        "vel" => a.vel,
+        "type" => "car"
+    ) for a in allagents(model) if a isa Car]
+
     traffic_lights = []
     
     for agent in allagents(model)
@@ -27,7 +34,7 @@ route("/simulations", method = POST) do
     json(Dict(
         "Location" => "/simulations/$id", 
         "id" => id, 
-        "cars" => [], 
+        "cars" => cars, 
         "traffic_lights" => traffic_lights
     ))
 end
@@ -36,6 +43,13 @@ route("/simulations/:id", method = GET) do
     id = Genie.params(:id)
     model = instances[id]
     Agents.step!(model, 1)
+
+     cars = [Dict(
+        "id" => a.id,
+        "pos" => a.pos,
+        "vel" => a.vel,
+        "type" => "car"
+    ) for a in allagents(model) if a isa Car]
     
     traffic_lights = []
     
@@ -49,7 +63,7 @@ route("/simulations/:id", method = GET) do
     end
 
     json(Dict(
-        "cars" => [],  
+        "cars" => cars,  
         "traffic_lights" => traffic_lights
     ))
 end
