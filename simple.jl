@@ -1,51 +1,67 @@
 using Agents, Random
 using StaticArrays: SVector
-using Distributions  
 
-@enum TrafficLightState begin
-    GREEN
-    YELLOW
-    RED
+# Definir ambos tipos de agentes
+@agent struct Car(ContinuousAgent{2,Float64})
+    vel::SVector{2,Float64}
 end
 
-@agent struct TrafficLight(GridAgent{2})
-    state::TrafficLightState = GREEN
-    timer::Int = 0
+@agent struct TrafficLight(ContinuousAgent{2,Float64})
+    color::Symbol
 end
 
-# Funcion solo para semaforos
-function agent_step!(light::TrafficLight, model)
-    light.timer += 1
-    
-    # Cambiar estados del semáforo segun tiempos
-    if light.state == GREEN && light.timer >= 10
-        light.state = YELLOW
-        light.timer = 0
-    elseif light.state == YELLOW && light.timer >= 4
-        light.state = RED
-        light.timer = 0
-    elseif light.state == RED && light.timer >= 14
-        light.state = GREEN
-        light.timer = 0
+# Función agent_step! para ambos tipos de agentes
+function agent_step!(agent, model)
+    if agent isa Car
+        # Posición del semáforo (asumimos que hay solo uno en posición fija)
+        semaphore_pos = (12.5, 5.0)
+        stop_distance = 3.0
+        
+        # Verificar si está cerca del semáforo y debe detenerse
+        distance_to_semaphore = abs(agent.pos[1] - semaphore_pos[1])
+        
+        if distance_to_semaphore < stop_distance
+            # Buscar el semáforo para ver su color
+            for a in allagents(model)
+                if a isa TrafficLight
+                    if a.color in [:red, :yellow]
+                        return  # No moverse - auto se detiene
+                    end
+                end
+            end
+        end
+        
+        # Si no debe detenerse, moverse normalmente
+        move_agent!(agent, model, 1.0)
+        
+    elseif agent isa TrafficLight
+        # El semáforo no se mueve, solo está ahí
+        nothing
     end
 end
 
 function initialize_model(extent = (25, 10))
-    space2d = GridSpace(extent; periodic = true)
+    space2d = ContinuousSpace(extent; spacing = 0.5, periodic = true)
     rng = Random.MersenneTwister()
 
-    model = StandardABM(TrafficLight, space2d; rng, agent_step!, scheduler = Schedulers.Randomly())
+    # Usar Union para ambos tipos de agentes
+    model = StandardABM(Union{Car, TrafficLight}, space2d; rng, agent_step!, scheduler = Schedulers.ByType())
 
-    # Semaforo 1 
-    add_agent!((20, 5), model, GREEN, 0)
+    # Agregar UN solo auto en posición aleatoria excluyendo área del semáforo
+    semaphore_area = (10.0, 15.0)  # Área a excluir alrededor del semáforo
     
-    # Semaforo 2 
-    # Iniciar en rojo
-    add_agent!((12, 2), model, RED, 0)
-
-    for light in allagents(model)
-        println("   - Semáforo $(light.id): $(light.state) en posición $(light.pos)")
+    # Generar posición aleatoria fuera del área del semáforo
+    while true
+        px = rand(rng) * extent[1]
+        if px < semaphore_area[1] || px > semaphore_area[2]
+            velocidad = rand(rng) * 0.5 + 0.3  # Velocidad entre 0.3 y 0.8
+            add_agent!(SVector{2, Float64}(px, 5.0), model, vel=SVector{2, Float64}(velocidad, 0.0))
+            break
+        end
     end
-    
-    return model
+
+    # Agregar el semáforo (posición fija en el centro)
+    add_agent!(SVector{2, Float64}(12.5, 5.0), model, :red)  # Inicia en rojo
+
+    model
 end
