@@ -4,6 +4,7 @@ export default function App() {
   const [location, setLocation] = useState("");  
   const [cars, setCars] = useState([]);
   const [trafficLights, setTrafficLights] = useState([]);
+  const [avgSpeed, setAvgSpeed] = useState(0);
   const running = useRef(null);
 
   // Inicializa la simulación (llama a Julia para crear el modelo)
@@ -34,6 +35,7 @@ export default function App() {
         .then(data => {
           setCars(data["cars"] || []);
           setTrafficLights(data["traffic_lights"] || []);
+          setAvgSpeed(data["average_speed"]?.toFixed(2) || 0);
         });
     }, 500);
   };
@@ -61,6 +63,10 @@ export default function App() {
         <button onClick={setup}>Setup</button>
         <button onClick={handleStart}>Start</button>
         <button onClick={handleStop}>Stop</button>
+      </div>
+
+      <div style={{ marginBottom: "10px", fontSize: "18px" }}>
+        Velocidad promedio: <b>{avgSpeed} carros por segundo</b>
       </div>
 
       <svg width="600" height="600" xmlns="http://www.w3.org/2000/svg" style={{ backgroundColor: "darkgreen" }}>

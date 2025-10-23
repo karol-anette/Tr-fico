@@ -64,6 +64,14 @@ function agent_step!(agent, model)
     end
 end
 
+function average_speed(model)
+    cars = [a for a in allagents(model) if a isa Car]
+    if isempty(cars)
+        return 0.0
+    end
+    mean(norm(a.vel) for a in cars)
+end
+
 function initialize_model(extent = (25, 10))
     space2d = ContinuousSpace(extent; spacing = 0.5, periodic = true)
     rng = Random.MersenneTwister()
@@ -73,7 +81,6 @@ function initialize_model(extent = (25, 10))
 
     semaphore_area = (10.0, 15.0)  # Área a excluir alrededor del semáforo
 
-    # Agregar UN solo auto en posición aleatoria excluyendo área del semáforo
     num_cars = 5
     base_y = 5.0
     placed = 0

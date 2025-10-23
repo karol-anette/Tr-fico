@@ -24,7 +24,7 @@ route("/simulations", method = POST) do
         push!(traffic_lights, Dict(
             "id" => agent.id,
             "pos" => agent.pos,
-            "state" => string(agent.state),
+            "color" => string(agent.color),
             "type" => "traffic_light"
         ))
     end
@@ -57,14 +57,15 @@ route("/simulations/:id", method = GET) do
         push!(traffic_lights, Dict(
             "id" => agent.id,
             "pos" => agent.pos,
-            "state" => string(agent.state),
+            "color" => string(agent.color),
             "type" => "traffic_light"
         ))
     end
 
     json(Dict(
         "cars" => cars,  
-        "traffic_lights" => traffic_lights
+        "traffic_lights" => traffic_lights,
+        "average_speed" => average_speed(model)
     ))
 end
 
